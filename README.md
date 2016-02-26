@@ -19,16 +19,18 @@ No warranty! Use at your own risk!
 Create a csv file recordings.csv without header with the format "title|url".
 
 Here you have to add a line for each recording.
-
- Title of Recording|https://[uri]/[...]/watch.html?id=[id]
- 
+```
+Title of Recording|https://[uri]/[...]/watch.html?id=[id]
+```
 Get required episode informations:
-
- ./get-episodes recordings.csv > episodes.json
-
+```
+./get-episodes recordings.csv > episodes.json
+```
 Download all the tracks:
- ./track-download-paramenters episodes.json [destination_dir] | ./track-download
-
+```
+./track-download-paramenters episodes.json [destination_dir] | ./track-download
+```
 Create a mkv file for each episode:
-
- ./episode-mkvmerge-params episodes.json [source_dir] [destination_dir] | ./episode-mkvmerge
+```
+./episode-mkvmerge-params episodes.json [source_dir] [destination_dir] | ./episode-mkvmerge
+```
