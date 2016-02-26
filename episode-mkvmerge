@@ -1,0 +1,2 @@
+#!/bin/sh
+xargs -l sh -c 'mkvmerge -o $0 --default-duration 0:$1fps $2 --default-duration 2:$3fps $4'

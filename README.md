@@ -8,7 +8,7 @@ MattHorDownloader allows to download recordings from MatterHorn.
 
 MattHorDownloader currently only works with a unix system (shell, env, xargs, wget). For the use with a windows system, you can use cygwin (https://www.cygwin.com/).
 
-Requirements are: python3, shell, env, xargs and wget.
+Requirements are: python3, shell, env, xargs, wget and mkvtoolnix.
 
 ##Disclaimer
 
@@ -27,4 +27,8 @@ Get required episode informations:
  ./get-episodes recordings.csv > episodes.json
 
 Download all the tracks:
- ./track-download-paramenters episodes.json [destination] | ./track-download
+ ./track-download-paramenters episodes.json [destination_dir] | ./track-download
+
+Create a mkv file for each episode:
+
+ ./episode-mkvmerge-params episodes.json [source_dir] [destination_dir] | ./episode-mkvmerge
