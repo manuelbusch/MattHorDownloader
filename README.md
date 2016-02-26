@@ -2,7 +2,7 @@
 
 ##Information
 
-MattHorDownloader allows to download recordings from MatterHorn.
+MattHorDownloader allows to download recordings from Opencast/Matterhorn (http://www.opencast.org).
 
 ##Requirements
 
