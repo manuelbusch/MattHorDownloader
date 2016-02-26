@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+import sys
+import os
+import urllib.request as request
+import http.cookiejar as cookiejar
+import urllib.parse as parse
+import json
+
+def tracks(episode):
+    try:
+        return episode['search-results']['result']['mediapackage']['media']['track']
+    except KeyError:
+        return []
+
+def get_largest_track(tracks):
+    track = None
+    for tmp_track in tracks:
+        if not tmp_track['url'].startswith('http'):
+            continue
+        if track:
+            if int(track['video']['resolution'].split('x')[0]) >\
+                    int(tmp_track['video']['resolution'].split('x')[0]):
+                continue
+            track = tmp_track
+        else:
+            track = tmp_track
+    return track
+
+def unsplit_url(urlsplit, scheme=None, netloc=None, path=None, query=None, 
+        fragment=None):
+    return parse.urlunsplit((
+            urlsplit.scheme if not scheme else scheme,
+            urlsplit.netloc if not netloc else netloc,
+            urlsplit.path if not path else path,
+            urlsplit.query if not query else query,
+            urlsplit.fragment if not fragment else fragment,
+        ))
+
+def request_episode(watch_url):
+    cj = cookiejar.CookieJar()
+    opener = request.build_opener(request.HTTPCookieProcessor(cj))
+
+    watch_url_split = parse.urlsplit(watch_url)
+    watch_url_params = dict(parse.parse_qsl(watch_url_split.query))
+    episode_id = watch_url_params['id']
+
+    #we need to add a mdl, don't know why its required
+    watch_request_params = {'mdl': 'ufz0'} 
+    watch_request_params.update(watch_url_params)
+
+    episode_request_params = {'id': episode_id}
+
+    watch_request_url = unsplit_url(watch_url_split, 
+                    query=parse.urlencode(watch_request_params))
+    episode_request_url = unsplit_url(watch_url_split, 
+                    path='search/episode.json',
+                    query=parse.urlencode(episode_request_params))
+
+    opener.open(watch_request_url) #first open watch_url with ufz0
+    episode_response = opener.open(episode_request_url)
+    return episode_response.read().decode('utf-8')
+
+def main():
+    title_path_file = sys.argv[1]
+    video_ref_tracks = {}
+    episodes = {}
+
+    with open(title_path_file,'r') as f:
+        lines = f.read().splitlines()  
+        for line in lines:
+            title, watch_url = line.split('|')
+            title_ = title.replace(' ','_')
+            episode_json = request_episode(watch_url)
+            episodes[title_] = {"tracks": {}}
+
+            for track in tracks(json.loads(episode_json)):
+                if 'video' not in track:
+                    continue
+
+                if track['ref'] not in video_ref_tracks:
+                    video_ref_tracks[track['ref']] = []
+                video_ref_tracks[track['ref']].append(track)
+
+            track = None
+            for ref_key, rtracks in video_ref_tracks.items():
+                track = get_largest_track(rtracks)
+                source_path = track['url']
+                episodes[title_]['tracks'][ref_key] = {
+                    'source_path': source_path,
+                    'id': track['id'],
+                    'md5_checksum': track['checksum']['$'],
+                    'video_framerate': track['video']['framerate'],
+                    'video_resolution': track['video']['resolution'],
+                }
+
+    print(json.dumps(episodes, sort_keys=True, indent=4, separators=(',', ': ')))
+
+if '__main__' == __name__:
+    main()
