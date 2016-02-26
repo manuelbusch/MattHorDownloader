@@ -6,7 +6,7 @@ MattHorDownloader allows to download recordings from MatterHorn.
 
 ##Requirements
 
-MattHorDownloader currently only works with a unix system (xargs, wget).
+MattHorDownloader currently only works with a unix system (shell, xargs, wget). For the use with a windows system, you can use cygwin (https://www.cygwin.com/).
 
 Requirements are: python3, shell, xargs and wget.
 
