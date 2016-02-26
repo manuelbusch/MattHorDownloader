@@ -62,7 +62,6 @@ def request_episode(watch_url):
 
 def main():
     title_path_file = sys.argv[1]
-    video_ref_tracks = {}
     episodes = {}
 
     with open(title_path_file,'r') as f:
@@ -72,7 +71,7 @@ def main():
             title_ = title.replace(' ','_')
             episode_json = request_episode(watch_url)
             episodes[title_] = {"tracks": {}}
-
+            video_ref_tracks = {}
             for track in tracks(json.loads(episode_json)):
                 if 'video' not in track:
                     continue
