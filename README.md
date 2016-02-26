@@ -10,6 +10,15 @@ MattHorDownloader currently only works with a unix system (shell, env, xargs, wg
 
 Requirements are: python3, shell, env, xargs, wget and mkvtoolnix.
 
+##Install
+
+With apt (Debian/Ubuntu):
+
+```
+sudo apt-get install git python3 mkvtoolnix wget findutils
+
+git clone https://github.com/manuelbusch/MattHorDownloader.git
+```
 ##Disclaimer
 
 No warranty! Use at your own risk!
