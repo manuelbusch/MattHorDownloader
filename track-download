@@ -1,2 +1,2 @@
 #!/bin/sh
-xargs -l bash -c 'wget --continue --timeout=8 $0 -O $1'
+xargs -l sh -c 'wget --continue --timeout=8 $0 -O $1'
