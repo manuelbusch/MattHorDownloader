@@ -36,7 +36,7 @@ def unsplit_url(urlsplit, scheme=None, netloc=None, path=None, query=None,
             urlsplit.fragment if not fragment else fragment,
         ))
 
-def request_episode(watch_url):
+def request_episode(watch_url, mdl):
     cj = cookiejar.CookieJar()
     opener = request.build_opener(request.HTTPCookieProcessor(cj))
 
@@ -45,7 +45,7 @@ def request_episode(watch_url):
     episode_id = watch_url_params['id']
 
     #we need to add a mdl, don't know why its required
-    watch_request_params = {'mdl': 'ufz0'} 
+    watch_request_params = {'mdl': mdl}
     watch_request_params.update(watch_url_params)
 
     episode_request_params = {'id': episode_id}
@@ -56,12 +56,13 @@ def request_episode(watch_url):
                     path='search/episode.json',
                     query=parse.urlencode(episode_request_params))
 
-    opener.open(watch_request_url) #first open watch_url with ufz0
+    opener.open(watch_request_url) #first open watch_url with mdl
     episode_response = opener.open(episode_request_url)
     return episode_response.read().decode('utf-8')
 
 def main():
     title_path_file = sys.argv[1]
+    mdl = sys.argv[2]
     episodes = {}
 
     with open(title_path_file,'r') as f:
@@ -69,7 +70,7 @@ def main():
         for line in lines:
             title, watch_url = line.split('|')
             title_ = title.replace(' ','_')
-            episode_json = request_episode(watch_url)
+            episode_json = request_episode(watch_url, mdl)
             episodes[title_] = {"tracks": {}}
             video_ref_tracks = {}
             for track in tracks(json.loads(episode_json)):
