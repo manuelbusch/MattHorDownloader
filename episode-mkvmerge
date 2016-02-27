@@ -1,2 +1,86 @@
-#!/bin/sh
-xargs -l sh -c 'mkvmerge -o $0 --default-duration 0:$1fps $2 --default-duration 2:$3fps $4'
+#!/usr/bin/env python3
+import os
+import sys
+import json
+import hashlib
+import subprocess
+from collections import OrderedDict
+
+def bhash(fs, hasher, bsize = 65536):
+    buf = fs.read(bsize)
+    while len(buf) > 0:
+        hasher.update(buf)
+        buf = fs.read(bsize)
+        yield hasher
+
+def main():
+    episodes_file = sys.argv[1]
+    source_dir = '.'
+    try:
+        source_dir = sys.argv[2]
+    except IndexError:
+        pass
+    destination_dir = '.'
+    try:
+        destination_dir = sys.argv[3]
+    except IndexError:
+        pass
+
+    episodes_json = ''
+    with open(episodes_file,'r') as fs:
+        episodes_json = fs.read()
+    episodes = json.loads(episodes_json)
+
+    for title, episode in episodes.items():
+        mkv_file_name = title+'.mkv'
+        destination_path = os.path.join(destination_dir, mkv_file_name)
+        if os.path.isfile(destination_path):
+            sys.stderr.write(
+                    "File {} already exists! Skip.\n"\
+                            .format(destination_path))
+            continue
+        rm_args = []
+        mkvmerge_args = []
+        skip_episode = False
+        vtrack_counter = 0
+        mkvmerge_args += ["-o", "{}".format(destination_path)]
+        for ref, track in OrderedDict(sorted(episode['tracks'].items(), 
+                                                key=lambda t: t[0])).items():
+            hasher = hashlib.md5()
+            ending = os.path.basename(track['source_path']).split('.')[1]
+            source_file_name = track['id']+'.'+ending
+            source_path = os.path.join(source_dir, source_file_name)
+            md5hash = None
+            if not os.path.isfile(source_path):
+                skip_episode = True
+                break
+            with open(source_path,'br') as fs:
+                for hasher in bhash(fs, hasher):
+                    md5hash = hasher.hexdigest()
+            if md5hash != track['md5_checksum']:
+                skip_episode = True
+                break
+            mkvmerge_args += ["--default-duration", "{}:{}fps".format(vtrack_counter,track['video_framerate'])]
+            mkvmerge_args.append(source_path)
+            rm_args.append(source_path)
+            vtrack_counter += 2
+        if skip_episode:
+            sys.stderr.write(
+                    "Track {} of episode {} is not complete or corrupted.\n"\
+                            .format(source_path, title))
+            continue 
+
+        command = ["mkvmerge"]+mkvmerge_args
+        if 0 == subprocess.call(["mkvmerge"]+mkvmerge_args):
+            mkv_relpath = os.path.relpath(destination_path,
+                    os.path.dirname(episodes_file))
+            episodes[title]['mkv'] = mkv_relpath
+            subprocess.call(["rm"]+rm_args) 
+
+    with open(episodes_file,'w') as fs:
+        fs.write(json.dumps(episodes, sort_keys=True, indent=4, 
+                                                        separators=(',', ': ')))
+
+if '__main__' == __name__:
+    main()
+

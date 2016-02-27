@@ -41,5 +41,5 @@ Download all the tracks:
 ```
 Create a mkv file for each episode:
 ```
-./episode-mkvmerge-params episodes.json [source_dir] [destination_dir] | ./episode-mkvmerge
+./episode-mkvmerge episodes.json [source_dir] [destination_dir]
 ```

@@ -15,6 +15,8 @@ def main():
     episodes = json.loads(episodes_json)
     
     for title, episode in episodes.items():
+        if 'mkv' in episode.keys():
+            continue
         for ref, track in episode['tracks'].items():
             ending = os.path.basename(track['source_path']).split('.')[1]
             file_name = track['id']+'.'+ending
