@@ -50,7 +50,7 @@ You need the mdl value in step 3. with get-episodes.
 ```
 ###4. Download all the tracks:
 ```
-./track-download-paramenters episodes.json [destination_dir] | ./track-download
+./track-download-params episodes.json [destination_dir] | ./track-download
 ```
 ###5. Create a mkv file for each episode:
 ```
