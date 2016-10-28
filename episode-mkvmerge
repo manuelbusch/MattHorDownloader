@@ -13,18 +13,16 @@ def bhash(fs, hasher, bsize = 65536):
         buf = fs.read(bsize)
         yield hasher
 
-def main():
-    episodes_file = sys.argv[1]
-    source_dir = '.'
-    try:
-        source_dir = sys.argv[2]
-    except IndexError:
-        pass
-    destination_dir = '.'
-    try:
-        destination_dir = sys.argv[3]
-    except IndexError:
-        pass
+if '__main__' == __name__:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("episodes_file", help="Path to the episodes json file.")
+    parser.add_argument("--source_dir", default=".", help="""
+	Path to the folder where the temporary download files are located.""")
+    parser.add_argument("--destination_dir", default=".", help="""
+	Path to a folder for saving the gernerated mkv files.
+	""")
+    args = parser.parse_args()
 
     episodes_json = ''
     with open(episodes_file,'r') as fs:
@@ -33,7 +31,7 @@ def main():
 
     for title, episode in episodes.items():
         mkv_file_name = title+'.mkv'
-        destination_path = os.path.join(destination_dir, mkv_file_name)
+        destination_path = os.path.join(args.destination_dir, mkv_file_name)
         if os.path.isfile(destination_path):
             sys.stderr.write(
                     "File {} already exists! Skip.\n"\
@@ -44,12 +42,12 @@ def main():
         skip_episode = False
         vtrack_counter = 0
         mkvmerge_args += ["-o", "{}".format(destination_path)]
-        for ref, track in OrderedDict(sorted(episode['tracks'].items(), 
+        for ref, track in OrderedDict(sorted(episode['tracks'].items(),
                                                 key=lambda t: t[0])).items():
             hasher = hashlib.md5()
             ending = os.path.basename(track['source_path']).split('.')[1]
             source_file_name = track['id']+'.'+ending
-            source_path = os.path.join(source_dir, source_file_name)
+            source_path = os.path.join(args.source_dir, source_file_name)
             md5hash = None
             if not os.path.isfile(source_path):
                 skip_episode = True
@@ -68,19 +66,15 @@ def main():
             sys.stderr.write(
                     "Track {} of episode {} is not complete or corrupted.\n"\
                             .format(source_path, title))
-            continue 
+            continue
 
         command = ["mkvmerge"]+mkvmerge_args
         if 0 == subprocess.call(["mkvmerge"]+mkvmerge_args):
             mkv_relpath = os.path.relpath(destination_path,
-                    os.path.dirname(episodes_file))
+                    os.path.dirname(args.episodes_file))
             episodes[title]['mkv'] = mkv_relpath
-            subprocess.call(["rm"]+rm_args) 
+            subprocess.call(["rm"]+rm_args)
 
-    with open(episodes_file,'w') as fs:
-        fs.write(json.dumps(episodes, sort_keys=True, indent=4, 
+    with open(args.episodes_file,'w') as fs:
+        fs.write(json.dumps(episodes, sort_keys=True, indent=4,
                                                         separators=(',', ': ')))
-
-if '__main__' == __name__:
-    main()
-

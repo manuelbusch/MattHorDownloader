@@ -26,7 +26,7 @@ def get_largest_track(tracks):
             track = tmp_track
     return track
 
-def unsplit_url(urlsplit, scheme=None, netloc=None, path=None, query=None, 
+def unsplit_url(urlsplit, scheme=None, netloc=None, path=None, query=None,
         fragment=None):
     return parse.urlunsplit((
             urlsplit.scheme if not scheme else scheme,
@@ -50,9 +50,9 @@ def request_episode(watch_url, mdl):
 
     episode_request_params = {'id': episode_id}
 
-    watch_request_url = unsplit_url(watch_url_split, 
+    watch_request_url = unsplit_url(watch_url_split,
                     query=parse.urlencode(watch_request_params))
-    episode_request_url = unsplit_url(watch_url_split, 
+    episode_request_url = unsplit_url(watch_url_split,
                     path='search/episode.json',
                     query=parse.urlencode(episode_request_params))
 
@@ -60,17 +60,26 @@ def request_episode(watch_url, mdl):
     episode_response = opener.open(episode_request_url)
     return episode_response.read().decode('utf-8')
 
-def main():
-    title_path_file = sys.argv[1]
-    mdl = sys.argv[2]
+if '__main__' == __name__:
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("title_path_file", help="""
+	Path to the pipe separated, header less csv file with format
+	'Title of Recording|https://[uri]/[...]/watch.html?id=[id]'""")
+    parser.add_argument("mdl", help="""
+	The mdl value provied by the moodle. Can be found in the http
+	get arguments of the connection by clicking on the video link
+	(watch.html).""")
+    args = parser.parse_args()
+
     episodes = {}
 
-    with open(title_path_file,'r') as f:
-        lines = f.read().splitlines()  
+    with open(args.title_path_file,'r') as f:
+        lines = f.read().splitlines()
         for line in lines:
             title, watch_url = line.split('|')
             title_ = title.replace(' ','_')
-            episode_json = request_episode(watch_url, mdl)
+            episode_json = request_episode(watch_url, args.mdl)
             episodes[title_] = {"tracks": {}}
             video_ref_tracks = {}
             for track in tracks(json.loads(episode_json)):
@@ -94,6 +103,3 @@ def main():
                 }
 
     print(json.dumps(episodes, sort_keys=True, indent=4, separators=(',', ': ')))
-
-if '__main__' == __name__:
-    main()
