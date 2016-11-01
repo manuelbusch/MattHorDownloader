@@ -1,49 +1,67 @@
 #MattHorDownloader
 
+Version 1.0
+
 ##Information
 
-MattHorDownloader allows to download recordings from Opencast/Matterhorn (http://www.opencast.org).
+MattHorDownloader allows you to download recordings for Opencast/Matterhorn
+(http://www.opencast.org) with multiple video channels provided within the
+moodle platform. You can watch the speech and the slides of each recording
+synchronously by using vlc (https://www.videolan.org/vlc/). Just select
+the second video channel within the video sub menu.
 
 ##Requirements
 
-MattHorDownloader currently only works with a unix system (shell, env, xargs, wget). For the use with a windows system, you can use cygwin (https://www.cygwin.com/).
+MattHorDownloader currently only runs on a unix system (shell, env, xargs,
+wget). To use it on a windows system, you can use cygwin
+(https://www.cygwin.com/). With Windows 10 you can use the Ubuntu Bash
+(https://msdn.microsoft.com/commandline/wsl) (Not tested).
 
 Requirements are: python3, shell, env, xargs, wget and mkvtoolnix.
 
 ##Install
 
-With apt (Debian/Ubuntu):
+With apt (Debian/Ubuntu and Windows 10 Ubuntu Bash):
+
+Install requirements:
 
 ```
-sudo apt-get install git python3 mkvtoolnix wget findutils
+sudo apt install git python3 mkvtoolnix wget findutils
 
+```
+
+Clone the git project:
+
+```
 git clone https://github.com/manuelbusch/MattHorDownloader.git
 ```
+
 ##Disclaimer
 
 No warranty! Use at your own risk!
 
 ##Usage
 
-Create a csv file recordings.csv without header with the format "title|url".
 
-###1. Add a line in recordings.csv for each recording
-```
-Title of Recording|https://[uri]/[...]/watch.html?id=[id]
-```
-###2. Get the MDL-Value
+###1. Create a pipe separated csv file recordings.csv without a header.
 
-Install the plugin "Tamper Data" with firefox or a similar plugin. 
-Go to the page where the link to the OpenCast player is listed.
-Start the plugin and begin the tamper mode. Now you have to click the link 
-that opens the OpenCast player. The tamper will open a dialog 
-with a URL like this:
-```
-https://[uri]/[...]/watch.html?id=[...]&mdl=[mdl]
-```
-Now copy the the mdl value, allow the request and stop the tamper mode. 
-You need the mdl value in step 3. with get-episodes.
+Add a line in recordings.csv for each recording
 
+Example:
+
+```
+Title of Recording|https://[host]/[...]/watch.html?id=[id]
+```
+###2. Identify the MDL-Value
+
+You can use the web developer tools provided by many browsers to
+identify the mdl value. Open the network analyzer and search for
+the resource watch.html URL after clicking on the link opening 
+the player inside moodle.
+
+```
+https://[host]/[...]/watch.html?id=[...]&mdl=[mdl]
+```
 ###3. Get required episode informations:
 ```
 ./get-episodes recordings.csv [mdl] > episodes.json
@@ -56,3 +74,5 @@ You need the mdl value in step 3. with get-episodes.
 ```
 ./episode-mkvmerge episodes.json [source_dir] [destination_dir]
 ```
+
+#Todo
