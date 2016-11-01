@@ -68,11 +68,13 @@ https://[host]/[...]/watch.html?id=[...]&mdl=[mdl]
 ```
 ###4. Download all the tracks:
 ```
-./track-download-params episodes.json [destination_dir] | ./track-download
+./track-download-params episodes.json [--destination_dir DESTINATION_DIR] | ./track-download
 ```
 ###5. Create a mkv file for each episode:
 ```
-./episode-mkvmerge episodes.json [source_dir] [destination_dir]
+./episode-mkvmerge episodes.json [--source_dir SOURCE_DIR] [--destination_dir DESTINATION_DIR]
 ```
 
-#Todo
+##Todo
+
+* Insert table of contents to the matroska container
