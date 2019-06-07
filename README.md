@@ -1,8 +1,9 @@
-#MattHorDownloader
+MattHorDownloader
+=================
 
 Version 1.0
 
-##Information
+## Information
 
 MattHorDownloader allows you to download recordings for Opencast/Matterhorn
 (http://www.opencast.org) with multiple video channels provided within the
@@ -10,7 +11,7 @@ moodle platform. You can watch the speech and the slides of each recording
 synchronously by using vlc (https://www.videolan.org/vlc/). Just select
 the second video channel within the video sub menu.
 
-##Requirements
+## Requirements
 
 MattHorDownloader currently only runs on a unix system (shell, env, xargs,
 wget). To use it on a windows system, you can use cygwin
@@ -19,7 +20,7 @@ wget). To use it on a windows system, you can use cygwin
 
 Requirements are: python3, shell, env, xargs, wget and mkvtoolnix.
 
-##Install
+## Install
 
 With apt (Debian/Ubuntu and Windows 10 Ubuntu Bash):
 
@@ -36,14 +37,14 @@ Clone the git project:
 git clone https://github.com/manuelbusch/MattHorDownloader.git
 ```
 
-##Disclaimer
+## Disclaimer
 
 No warranty! Use at your own risk!
 
-##Usage
+## Usage
 
 
-###1. Create a pipe separated csv file recordings.csv without a header.
+### 1. Create a pipe separated csv file recordings.csv without a header.
 
 Add a line in recordings.csv for each recording
 
@@ -52,7 +53,7 @@ Example:
 ```
 Title of Recording|https://[host]/[...]/watch.html?id=[id]
 ```
-###2. Identify the MDL-Value
+### 2. Identify the MDL-Value
 
 You can use the web developer tools provided by many browsers to
 identify the mdl value. Open the network analyzer and search for
@@ -62,19 +63,19 @@ the player inside moodle.
 ```
 https://[host]/[...]/watch.html?id=[...]&mdl=[mdl]
 ```
-###3. Get required episode informations:
+### 3. Get required episode informations:
 ```
 ./get-episodes recordings.csv [mdl] > episodes.json
 ```
-###4. Download all the tracks:
+### 4. Download all the tracks:
 ```
 ./track-download-params episodes.json [--destination_dir DESTINATION_DIR] | ./track-download
 ```
-###5. Create a mkv file for each episode:
+### 5. Create a mkv file for each episode:
 ```
 ./episode-mkvmerge episodes.json [--source_dir SOURCE_DIR] [--destination_dir DESTINATION_DIR]
 ```
 
-##Todo
+## Todo
 
 * Insert table of contents to the matroska container
